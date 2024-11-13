@@ -7,3 +7,6 @@ set(EXTRA_COMPONENT_DIRS "./components/button")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(esp32-xbee)
+
+set(CONFIG_APP_EXCLUDE_PROJECT_VER_VAR)
+# Set the version in version.txt
