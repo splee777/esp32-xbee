@@ -52,6 +52,7 @@ static void ntrip_caster_client_remove(ntrip_caster_client_t *caster_client) {
     char *addr_str = err != 0 ? "UNKNOWN" : sockaddrtostr((struct sockaddr *) &client_addr);
 
     uart_nmea("$PESP,NTRIP,CST,CLIENT,DISCONNECTED,%s", addr_str);
+    ESP_LOGW(TAG, "Disconnected!");             // Info for disconnect
 
     destroy_socket(&caster_client->socket);
 
@@ -69,6 +70,13 @@ static void ntrip_caster_uart_handler(void* handler_args, esp_event_base_t base,
             ntrip_caster_client_remove(client);
         } else {
             stream_stats_increment(stream_stats, 0, sent);
+        }
+// Added fake reads to prevent disconnect on connection from input buffer not being read
+        sent = read(client->socket, buffer, BUFFER_SIZE);
+        if (sent > 0) {
+// Add the next line if you really want to send data back to uart
+//            uart_write(buffer, sent);
+            stream_stats_increment(stream_stats, sent, 0);
         }
     }
 }
@@ -229,6 +237,7 @@ static void ntrip_caster_task(void *ctx) {
 
             char *addr_str = sockaddrtostr((struct sockaddr *) &source_addr);
             uart_nmea("$PESP,NTRIP,CST,CLIENT,CONNECTED,%s", addr_str);
+            ESP_LOGI(TAG, "Connected!");             // Info for connect
         }
 
         _error:
