@@ -70,6 +70,9 @@ static void ntrip_server_uart_handler(void* handler_args, esp_event_base_t base,
 
     int sent = write(sock, buffer, length);
     if (sent < 0) {
+
+	ESP_LOGW(TAG,"Got negative sent value!");		//*-*
+
         destroy_socket(&sock);
         vTaskResume(server_task);
     } else {
